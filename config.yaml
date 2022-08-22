@@ -19,6 +19,7 @@ web:
     # the location on the filesystem where webapp javascript + css is located
     frontend:
       path: /opt/webcli/web
+#      path: ./dist
 
 log:
   file: '' #absolute or relative paths allowed, eg. web.log

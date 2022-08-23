@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/analogj/go-util/utils"
-	"github.com/packagrio/goweb-template/backend/pkg"
 	"github.com/packagrio/goweb-template/backend/pkg/config"
 	"github.com/packagrio/goweb-template/backend/pkg/errors"
 	"github.com/packagrio/goweb-template/backend/pkg/version"
+	"github.com/packagrio/goweb-template/backend/pkg/web"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
 	"io"
@@ -68,18 +68,18 @@ func main() {
 
 		Commands: []*cli.Command{
 			{
-				Name:  "create",
-				Usage: "Create a tag",
+				Name:  "start",
+				Usage: "Start the webcli server",
 				Action: func(c *cli.Context) error {
 					//fmt.Fprintln(c.App.Writer, c.Command.Usage)
-					//if c.IsSet("config") {
-					//	err = appconfig.ReadConfig(c.String("config")) // Find and read the config file
-					//	if err != nil {                             // Handle errors reading the config file
-					//		//ignore "could not find config file"
-					//		fmt.Printf("Could not find config file at specified path: %s", c.String("config"))
-					//		return err
-					//	}
-					//}
+					if c.IsSet("config") {
+						err = appconfig.ReadConfig(c.String("config")) // Find and read the config file
+						if err != nil {                                // Handle errors reading the config file
+							//ignore "could not find config file"
+							fmt.Printf("Could not find config file at specified path: %s", c.String("config"))
+							return err
+						}
+					}
 
 					//process cli variables
 					if c.IsSet("variable") {
@@ -103,15 +103,19 @@ func main() {
 					settingsData, err := json.Marshal(appconfig.AllSettings())
 					appLogger.Debug(string(settingsData), err)
 
-					pipeline := pkg.Pipeline{}
-					return pipeline.Start(appconfig)
+					webServer := web.AppEngine{Config: appconfig, Logger: appLogger}
+					return webServer.Start()
 				},
 
 				Flags: []cli.Flag{
 					&cli.StringFlag{
+						Name:  "config",
+						Usage: "Specify the path to the config file",
+					},
+					&cli.StringFlag{
 						Name:  "variable",
 						Value: "default",
-						Usage: "The variable used by pipeline",
+						Usage: "The variable used by webserver",
 					},
 					&cli.StringFlag{
 						Name:  "log-file",

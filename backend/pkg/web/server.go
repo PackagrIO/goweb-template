@@ -2,15 +2,12 @@ package web
 
 import (
 	"fmt"
-	"github.com/analogj/go-util/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/packagrio/goweb-template/backend/pkg/config"
-	"github.com/packagrio/goweb-template/backend/pkg/errors"
 	"github.com/packagrio/goweb-template/backend/pkg/web/handler"
 	"github.com/packagrio/goweb-template/backend/pkg/web/middleware"
 	"github.com/sirupsen/logrus"
 	"net/http"
-	"path/filepath"
 	"strings"
 )
 
@@ -66,13 +63,6 @@ func (ae *AppEngine) Start() error {
 	gin.SetMode(gin.ReleaseMode)
 	if strings.ToLower(ae.Config.GetString("log.level")) == "debug" {
 		gin.SetMode(gin.DebugMode)
-	}
-
-	//check if the database parent directory exists, fail here rather than in a handler.
-	if !utils.FileExists(filepath.Dir(ae.Config.GetString("web.database.location"))) {
-		return errors.ConfigValidationError(fmt.Sprintf(
-			"Database parent directory does not exist. Please check path (%s)",
-			filepath.Dir(ae.Config.GetString("web.database.location"))))
 	}
 
 	r := ae.Setup(ae.Logger)
